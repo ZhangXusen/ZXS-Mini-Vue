@@ -52,4 +52,7 @@ function createActiveObject(raw: any, baseHandlers) {
 	return new Proxy(raw, baseHandlers);
 }
 
-export function isReactive(value) {}
+//原理:触发一个get "is_reactive"属性操作,在 Proxy handler里对 get "is_reactive"做单独判断.
+export function isReactive(target) {
+	return target["is_reactive"];
+}

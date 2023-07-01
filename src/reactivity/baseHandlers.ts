@@ -11,6 +11,10 @@ function createGetter(isReadonly = false) {
 		if (!isReadonly) {
 			track(target, key);
 		}
+		//判断是否为reactive
+		if (key === "is_reactive") {
+			return !isReadonly;
+		}
 		return res;
 	};
 }
