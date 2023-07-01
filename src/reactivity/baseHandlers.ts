@@ -1,4 +1,5 @@
 import { track, trigger } from "./effect";
+import { ReactiveFlags } from "./reactive";
 
 const get = createGetter();
 const set = createSetter();
@@ -12,7 +13,7 @@ function createGetter(isReadonly = false) {
 			track(target, key);
 		}
 		//判断是否为reactive
-		if (key === "is_reactive") {
+		if (key === ReactiveFlags.IS_REACTIVE) {
 			return !isReadonly;
 		}
 		return res;

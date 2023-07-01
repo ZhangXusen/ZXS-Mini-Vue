@@ -1,6 +1,10 @@
 import { mutableHandlers, readonlyHandlers } from "./baseHandlers";
 import { track, trigger } from "./effect";
 
+export const enum ReactiveFlags {
+	IS_REACTIVE = "__v_isReactive",
+}
+
 export function reactive(raw) {
 	return createActiveObject(raw, mutableHandlers);
 	// return new Proxy(
@@ -54,5 +58,5 @@ function createActiveObject(raw: any, baseHandlers) {
 
 //原理:触发一个get "is_reactive"属性操作,在 Proxy handler里对 get "is_reactive"做单独判断.
 export function isReactive(target) {
-	return target["is_reactive"];
+	return target[ReactiveFlags.IS_REACTIVE];
 }
