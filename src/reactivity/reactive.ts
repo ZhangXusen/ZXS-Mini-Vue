@@ -3,6 +3,7 @@ import { track, trigger } from "./effect";
 
 export const enum ReactiveFlags {
 	IS_REACTIVE = "__v_isReactive",
+	IS_READONLY = "__v_isReadonly",
 }
 
 export function reactive(raw) {
@@ -58,5 +59,11 @@ function createActiveObject(raw: any, baseHandlers) {
 
 //原理:触发一个get "is_reactive"属性操作,在 Proxy handler里对 get "is_reactive"做单独判断.
 export function isReactive(target) {
-	return target[ReactiveFlags.IS_REACTIVE];
+	//如果没有is_reactive属性或者is_reactive为false(只读) 则返回false.
+	// !! 将结果强制转换成boolean
+	return !!target[ReactiveFlags.IS_REACTIVE];
+}
+
+export function isReadonly(target) {
+	return !!target[ReactiveFlags.IS_READONLY];
 }

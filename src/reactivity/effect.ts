@@ -1,5 +1,10 @@
 import { extend } from "../shared";
 
+//定义全局变量,使每个effect加入到dep中,由此可以调用fn()
+//表示每个执行的effect,每次响应式更新后,就将本次执行的effect放入dep,去重.
+
+let activeEffect;
+let shouldTrack;
 class ReactiveEffect {
 	private _fn: any;
 	public scheduler: Function | undefined;
@@ -12,8 +17,14 @@ class ReactiveEffect {
 	}
 	//执行fn
 	run() {
+		if (!this.active) {
+			return this._fn();
+		}
+		shouldTrack = true;
 		activeEffect = this;
-		return this._fn();
+		const result = this._fn();
+		shouldTrack = false;
+		return result;
 	}
 	stop() {
 		if (this.active) {
@@ -34,6 +45,7 @@ class ReactiveEffect {
 const targetMap = new Map();
 //收集effect()依赖
 export function track(target, key) {
+	if (!isTracking()) return;
 	//targetMap-->target-->key-->dep
 	let depsMap = targetMap.get(target);
 	// 初始化depsMap
@@ -47,7 +59,9 @@ export function track(target, key) {
 		dep = new Set();
 		depsMap.set(key, dep);
 	}
-	if (!activeEffect) return;
+
+	//effect已经在dep中了,就没必要添加进去了.
+	if (dep.has(activeEffect)) return;
 	dep.add(activeEffect);
 	activeEffect.deps.push(dep);
 }
@@ -77,12 +91,13 @@ function cleanupEffect(effect) {
 	effect.deps.forEach((dep: any) => {
 		dep.delete(effect);
 	});
+	effect.deps.length = 0;
 }
 
-//定义全局变量,使每个effect加入到dep中,由此可以调用fn()
-//表示每个执行的effect,每次响应式更新后,就将本次执行的effect放入dep,去重.
-let activeEffect;
-
+//是否在收集依赖
+function isTracking() {
+	return shouldTrack && activeEffect !== undefined;
+}
 export function effect(fn, options: any = {}) {
 	const _effect = new ReactiveEffect(fn, options.scheduler);
 

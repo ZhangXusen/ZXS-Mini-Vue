@@ -1,4 +1,4 @@
-import { isReactive, reactive } from "../reactive";
+import { isReactive, reactive, readonly } from "../reactive";
 
 describe("reactive", () => {
 	it("happy path", () => {
@@ -8,6 +8,19 @@ describe("reactive", () => {
 		expect(observed).not.toBe(original);
 		//用来验证响应式对象与和源对象的一致性
 		expect(observed.foo).toBe(1);
-		expect(isReactive(observed)).toBe(true);
+	});
+
+	//多层嵌套对象的响应式
+	test("nested reactives", () => {
+		const original = {
+			nested: {
+				foo: 1,
+			},
+			array: [{ bar: 2 }],
+		};
+		const observed = reactive(original);
+		expect(isReactive(observed.nested)).toBe(true);
+		expect(isReactive(observed.array)).toBe(true);
+		expect(isReactive(observed.array[0])).toBe(true);
 	});
 });

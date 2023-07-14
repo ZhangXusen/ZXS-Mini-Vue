@@ -72,6 +72,8 @@ describe("effect", () => {
 		expect(dummy).toBe(2);
 		stop(runner);
 		obj.prop = 3;
+		//obj.prop++ 时,还会是响应式的
+		//因为 prop++ : prop=prop+1 这里面有get和set操作.get时会重新收集依赖.而之前的stop清理的是之前的dep.而不是新的依赖
 		expect(dummy).toBe(2);
 
 		// stopped effect should still be manually callable

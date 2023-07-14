@@ -1,5 +1,6 @@
+import { isObject } from "../shared";
 import { track, trigger } from "./effect";
-import { ReactiveFlags } from "./reactive";
+import { ReactiveFlags, reactive, readonly } from "./reactive";
 
 const get = createGetter();
 const set = createSetter();
@@ -8,6 +9,10 @@ const readonlyGet = createGetter(true);
 function createGetter(isReadonly = false) {
 	return function get(target, key) {
 		const res = Reflect.get(target, key);
+		//是对象的话就转为响应式
+		if (isObject(res)) {
+			return isReadonly ? readonly(res) : reactive(res);
+		}
 		//非只读,则可以触发track()
 		if (!isReadonly) {
 			track(target, key);
@@ -15,6 +20,10 @@ function createGetter(isReadonly = false) {
 		//判断是否为reactive
 		if (key === ReactiveFlags.IS_REACTIVE) {
 			return !isReadonly;
+		}
+		//判断isReadonly
+		else if (key === ReactiveFlags.IS_READONLY) {
+			return isReadonly;
 		}
 		return res;
 	};
