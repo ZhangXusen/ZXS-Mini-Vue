@@ -1,4 +1,16 @@
-import { mutableHandlers, readonlyHandlers } from "./baseHandlers";
+/*
+ * @Description:
+ * @Version: 1.0
+ * @Author: 小国际
+ * @Date: 2023-06-30 15:41:05
+ * @LastEditors: 小国际
+ * @LastEditTime: 2023-07-17 15:58:39
+ */
+import {
+	mutableHandlers,
+	readonlyHandlers,
+	shallowReadonlyHandlers,
+} from "./baseHandlers";
 import { track, trigger } from "./effect";
 
 export const enum ReactiveFlags {
@@ -7,7 +19,7 @@ export const enum ReactiveFlags {
 }
 
 export function reactive(raw) {
-	return createActiveObject(raw, mutableHandlers);
+	return createReactiveObject(raw, mutableHandlers);
 	// return new Proxy(
 	// 	raw,
 	// 	mutableHandlers
@@ -35,7 +47,7 @@ export function reactive(raw) {
 
 //readonly不能set,没有track()
 export function readonly(raw) {
-	return createActiveObject(raw, readonlyHandlers);
+	return createReactiveObject(raw, readonlyHandlers);
 	// return new Proxy(
 	// 	raw,
 	// 	readonlyHandlers
@@ -52,8 +64,11 @@ export function readonly(raw) {
 	// 	// }
 	// );
 }
+export function shallowReadonly(raw) {
+	return createReactiveObject(raw, shallowReadonlyHandlers);
+}
 
-function createActiveObject(raw: any, baseHandlers) {
+function createReactiveObject(raw: any, baseHandlers) {
 	return new Proxy(raw, baseHandlers);
 }
 
@@ -66,4 +81,8 @@ export function isReactive(target) {
 
 export function isReadonly(target) {
 	return !!target[ReactiveFlags.IS_READONLY];
+}
+
+export function isProxy(target) {
+	return isReadonly(target) || isReactive(target);
 }

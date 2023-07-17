@@ -5,7 +5,7 @@ import { extend } from "../shared";
 
 let activeEffect;
 let shouldTrack;
-class ReactiveEffect {
+export class ReactiveEffect {
 	private _fn: any;
 	public scheduler: Function | undefined;
 	deps = [];
@@ -17,13 +17,17 @@ class ReactiveEffect {
 	}
 	//执行fn
 	run() {
+		console.log("run");
 		if (!this.active) {
 			return this._fn();
 		}
-		shouldTrack = true;
-		activeEffect = this;
+		shouldTrack = true; //可以开始收集依赖了
+		activeEffect = this; //利用全局属性来获取当前的 effect
+		console.log("执行用户传入的fn");
 		const result = this._fn();
+		// 重置
 		shouldTrack = false;
+		activeEffect = undefined;
 		return result;
 	}
 	stop() {
@@ -60,6 +64,11 @@ export function track(target, key) {
 		depsMap.set(key, dep);
 	}
 
+	trackEffect(dep);
+}
+
+//添加Effect
+export function trackEffect(dep) {
 	//effect已经在dep中了,就没必要添加进去了.
 	if (dep.has(activeEffect)) return;
 	dep.add(activeEffect);
@@ -70,6 +79,10 @@ export function track(target, key) {
 export function trigger(target: any, key: any, value: any) {
 	let depsMap = targetMap.get(target);
 	let dep = depsMap.get(key);
+	triggerEffect(dep);
+}
+
+export function triggerEffect(dep) {
 	//遍历dep,执行每个effect
 	for (const effect of dep) {
 		//更新时,有scheduler则触发,否则触发run()
@@ -80,7 +93,6 @@ export function trigger(target: any, key: any, value: any) {
 		}
 	}
 }
-
 //取消响应式
 //原理:把effect从deps中删除
 export function stop(runner) {
@@ -95,7 +107,7 @@ function cleanupEffect(effect) {
 }
 
 //是否在收集依赖
-function isTracking() {
+export function isTracking() {
 	return shouldTrack && activeEffect !== undefined;
 }
 export function effect(fn, options: any = {}) {
