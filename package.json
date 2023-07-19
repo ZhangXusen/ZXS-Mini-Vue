@@ -1,18 +1,24 @@
 {
 	"name": "ZXS-Mini-Vue",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "lib/guide-mini-vue.cjs.js",
+	"module": "lib/guide-mini-vue.esm.js",
 	"license": "MIT",
+	"type": "module",
 	"scripts": {
-		"test": "jest"
+		"test": "jest",
+		"build": "rollup -c rollup.config.js"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.22.5",
 		"@babel/preset-env": "^7.22.5",
 		"@babel/preset-typescript": "^7.22.5",
+		"@rollup/plugin-typescript": "^11.1.2",
 		"@types/jest": "^29.5.2",
 		"babel-jest": "^29.5.0",
 		"jest": "^29.5.0",
+		"rollup": "^3.26.3",
+		"tslib": "^2.6.0",
 		"typescript": "^5.1.6"
 	},
 	"dependencies": {}
