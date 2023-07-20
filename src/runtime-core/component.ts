@@ -1,3 +1,5 @@
+import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
+
 /**
  * @description: 创建组件实例的具体函数
  * @param {any} vNode
@@ -9,6 +11,7 @@ export function createComponentInstance(vNode: any) {
 	const component = {
 		vNode,
 		type: vNode.type,
+		setupState: {},
 	};
 
 	return component;
@@ -29,6 +32,7 @@ export function setupComponent(instance) {
 
 function setupStatefulComponent(instance: any) {
 	const Component = instance.type;
+	instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
 	const { setup } = Component;
 	//有时用户不会写setup()
 	if (setup) {
