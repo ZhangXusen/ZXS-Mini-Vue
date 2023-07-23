@@ -1,5 +1,6 @@
 import { isObject } from "../shared";
 import { createComponentInstance, setupComponent } from "./component";
+import { ShapeFlags } from "./shapeFlags";
 
 /*
  * @Description:
@@ -7,7 +8,7 @@ import { createComponentInstance, setupComponent } from "./component";
  * @Author: 小国际
  * @Date: 2023-07-18 17:26:32
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-20 19:45:46
+ * @LastEditTime: 2023-07-20 20:55:37
  */
 export function render(vNode, container) {
 	//调用patch,递归处理组件
@@ -26,9 +27,10 @@ export function render(vNode, container) {
 function patch(vNode: any, container: any) {
 	//处理组件
 	//判断 组件类型
-	if (typeof vNode.type === "string") {
+	const { shapeFlag } = vNode;
+	if (shapeFlag & ShapeFlags.ELEMENT) {
 		processElement(vNode, container);
-	} else if (isObject(vNode.type)) {
+	} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
 		processComponent(vNode, container);
 	}
 }
@@ -72,15 +74,24 @@ function mountComponent(initialVNode: any, container: any) {
  * @author: 小国际
  */
 function mountElement(vNode: any, container: any) {
-	const { type, props, children } = vNode;
+	const { type, props, children, shapeFlag } = vNode;
 	const el = (vNode.el = document.createElement(type));
 	for (const key in props) {
 		const value = props[key];
-		el.setAttribute(key, value);
+		console.log(key);
+		const isOn = (key: string) => /^on[A-Z]/.test(key);
+		if (isOn(key)) {
+			//prop为事件
+			const eventName = key.slice(2).toLocaleLowerCase;
+			el.addEventListener(eventName, value);
+		} else {
+			//prop为属性
+			el.setAttribute(key, value);
+		}
 	}
-	if (typeof children === "string") {
+	if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
 		el.textContent = children;
-	} else if (Array.isArray(children)) {
+	} else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
 		mountChildren(vNode, el);
 	}
 

@@ -4,8 +4,9 @@
  * @Author: 小国际
  * @Date: 2023-06-30 15:41:05
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-17 15:58:39
+ * @LastEditTime: 2023-07-22 20:51:12
  */
+import { isObject } from "../shared";
 import {
 	mutableHandlers,
 	readonlyHandlers,
@@ -69,6 +70,10 @@ export function shallowReadonly(raw) {
 }
 
 function createReactiveObject(raw: any, baseHandlers) {
+	if (isObject(raw)) {
+		console.warn(raw + " 要是一个对象");
+		return raw;
+	}
 	return new Proxy(raw, baseHandlers);
 }
 

@@ -1,3 +1,14 @@
+/*
+ * @Description:
+ * @Version: 1.0
+ * @Author: 小国际
+ * @Date: 2023-07-18 17:39:13
+ * @LastEditors: 小国际
+ * @LastEditTime: 2023-07-22 21:39:28
+ */
+import { shallowReadonly } from "../reactivity/reactive";
+import { emit } from "./componentEmit";
+import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 
 /**
@@ -12,13 +23,14 @@ export function createComponentInstance(vNode: any) {
 		vNode,
 		type: vNode.type,
 		setupState: {},
+		emit: () => {},
 	};
-
+	component.emit = emit.bind(null, component) as any;
 	return component;
 }
 
 export function setupComponent(instance) {
-	// initProps();
+	initProps(instance, instance.vNode.props);
 	// initSlots();
 	setupStatefulComponent(instance);
 }
@@ -37,10 +49,13 @@ function setupStatefulComponent(instance: any) {
 	//有时用户不会写setup()
 	if (setup) {
 		//setup()返回值：1.对象 2.render函数
-		const setupResult = setup();
+		const setupResult = setup(shallowReadonly(instance.props), {
+			emit: instance.emit,
+		});
 		handlerSetupResult(instance, setupResult);
 	}
 }
+
 function handlerSetupResult(instance, setupResult: any) {
 	//setup()返回值：Object、Function
 	//Object：
