@@ -4,12 +4,13 @@
  * @Author: 小国际
  * @Date: 2023-07-18 17:39:13
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-22 21:39:28
+ * @LastEditTime: 2023-07-24 17:09:44
  */
 import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
+import { initSlots } from "./componentSlot";
 
 /**
  * @description: 创建组件实例的具体函数
@@ -18,12 +19,15 @@ import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
  * @return {*}
  * @author: 小国际
  */
-export function createComponentInstance(vNode: any) {
+export function createComponentInstance(vNode: any, parent) {
 	const component = {
 		vNode,
 		type: vNode.type,
 		setupState: {},
 		emit: () => {},
+		slots: {},
+		provides: parent ? parent.provides : {},
+		parent,
 	};
 	component.emit = emit.bind(null, component) as any;
 	return component;
@@ -31,7 +35,7 @@ export function createComponentInstance(vNode: any) {
 
 export function setupComponent(instance) {
 	initProps(instance, instance.vNode.props);
-	// initSlots();
+	initSlots(instance, instance.vNode.children);
 	setupStatefulComponent(instance);
 }
 
@@ -48,6 +52,7 @@ function setupStatefulComponent(instance: any) {
 	const { setup } = Component;
 	//有时用户不会写setup()
 	if (setup) {
+		currentInstance = instance;
 		//setup()返回值：1.对象 2.render函数
 		const setupResult = setup(shallowReadonly(instance.props), {
 			emit: instance.emit,
@@ -72,4 +77,8 @@ function finishComponentSetup(instance: any) {
 	if (Component.render) {
 		instance.render = Component.render;
 	}
+}
+let currentInstance = null;
+export function getCurrentInstance() {
+	return currentInstance;
 }

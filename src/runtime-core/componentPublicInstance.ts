@@ -6,10 +6,11 @@ import { hasOwn } from "../shared";
  * @Author: 小国际
  * @Date: 2023-07-20 18:12:51
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-22 20:46:07
+ * @LastEditTime: 2023-07-23 20:40:47
  */
 const PublicPropertiesMap = {
 	$el: (i) => i.vNode.el,
+	$slots: (i) => i.vNode.slots,
 };
 
 export const PublicInstanceProxyHandlers = {
