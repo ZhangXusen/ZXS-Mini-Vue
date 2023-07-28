@@ -4,8 +4,9 @@
  * @Author: 小国际
  * @Date: 2023-07-18 17:39:13
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-24 17:09:44
+ * @LastEditTime: 2023-07-27 16:39:08
  */
+import { proxyRefs } from "../reactivity";
 import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
@@ -28,6 +29,10 @@ export function createComponentInstance(vNode: any, parent) {
 		slots: {},
 		provides: parent ? parent.provides : {},
 		parent,
+		isMounted: false,
+		subTree: {},
+		next: null,
+		update: () => {},
 	};
 	component.emit = emit.bind(null, component) as any;
 	return component;
@@ -67,7 +72,7 @@ function handlerSetupResult(instance, setupResult: any) {
 	//Function:当成render函数处理
 	if (typeof setupResult === "object") {
 		//将Object返回值挂载到组件实例上
-		instance.setupState = setupResult;
+		instance.setupState = proxyRefs(setupResult);
 	}
 	finishComponentSetup(instance);
 }

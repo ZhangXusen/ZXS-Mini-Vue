@@ -4,7 +4,7 @@
  * @Author: 小国际
  * @Date: 2023-07-18 17:22:34
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-23 22:21:46
+ * @LastEditTime: 2023-07-27 16:37:52
  */
 import { ShapeFlags } from "./shapeFlags";
 
@@ -17,6 +17,8 @@ export function createVNode(type, props?, children?) {
 		children,
 		el: null,
 		shapeFlag: getShapeFlag(type),
+		key: props && props.key,
+		component: null,
 	};
 	if (typeof children === "string") {
 		vNode.shapeFlag = vNode.shapeFlag | ShapeFlags.TEXT_CHILDREN;
