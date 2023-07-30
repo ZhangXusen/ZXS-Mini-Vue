@@ -1,6 +1,15 @@
+/*
+ * @Description:
+ * @Version: 1.0
+ * @Author: 小国际
+ * @Date: 2023-07-18 17:26:32
+ * @LastEditors: 小国际
+ * @LastEditTime: 2023-07-28 21:45:03
+ */
 import { effect } from "../reactivity/effect";
 import { createComponentInstance, setupComponent } from "./component";
 import { createAppAPI } from "./createApp";
+import { queueJobs } from "./scheduler";
 import { ShapeFlags } from "./shapeFlags";
 import { Fragment } from "./vnode";
 
@@ -521,38 +530,46 @@ export function createRenderer(options) {
 	 * @author: 小国际
 	 */
 	function setupRenderEffect(instance: any, initialVNode, container, anchor) {
-		instance.update = effect(() => {
-			if (!instance.isMounted) {
-				console.log("init");
-				const proxy = instance.proxy;
-				//调用render()，拿到vNode树
-				const subTree = (instance.subTree = instance.render.call(proxy));
-				console.log(`subtree:------->${subTree}`);
-				// 递归处理节点
-				patch(null, subTree, container, instance, anchor);
-				//赋值$el
-				initialVNode.el = subTree.el;
+		instance.update = effect(
+			() => {
+				if (!instance.isMounted) {
+					console.log("init");
+					const proxy = instance.proxy;
+					//调用render()，拿到vNode树
+					const subTree = (instance.subTree = instance.render.call(proxy));
+					console.log(`subtree:------->${subTree}`);
+					// 递归处理节点
+					patch(null, subTree, container, instance, anchor);
+					//赋值$el
+					initialVNode.el = subTree.el;
 
-				instance.isMounted = true;
-			} else {
-				console.log("update");
-				const proxy = instance.proxy;
-				const prevSubTree = instance.subTree;
-				//next:最新的虚拟节点 vNode:旧的虚拟节点
-				const { next, vNode } = instance;
-				if (next) {
-					next.el = vNode.el;
-					updateComponentPreRender(instance, next);
+					instance.isMounted = true;
+				} else {
+					console.log("update");
+					const proxy = instance.proxy;
+					const prevSubTree = instance.subTree;
+					//next:最新的虚拟节点 vNode:旧的虚拟节点
+					const { next, vNode } = instance;
+					if (next) {
+						next.el = vNode.el;
+						updateComponentPreRender(instance, next);
+					}
+					//调用render()，拿到vNode树
+					const subTree = instance.render.call(proxy);
+					//更新组件实例上的subTree,保证每次组件实例上的都是上一次的subTree
+					instance.subTree = subTree;
+					console.log("old subTree:------->" + prevSubTree);
+					console.log(`new subTree:------->${subTree}`);
+					patch(prevSubTree, subTree, container, instance, anchor);
 				}
-				//调用render()，拿到vNode树
-				const subTree = instance.render.call(proxy);
-				//更新组件实例上的subTree,保证每次组件实例上的都是上一次的subTree
-				instance.subTree = subTree;
-				console.log("old subTree:------->" + prevSubTree);
-				console.log(`new subTree:------->${subTree}`);
-				patch(prevSubTree, subTree, container, instance, anchor);
+			},
+			{
+				scheduler() {
+					console.log("update scheduler");
+					queueJobs(instance.update);
+				},
 			}
-		});
+		);
 	}
 
 	return {
