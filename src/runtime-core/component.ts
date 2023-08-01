@@ -4,7 +4,7 @@
  * @Author: 小国际
  * @Date: 2023-07-18 17:39:13
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-27 16:39:08
+ * @LastEditTime: 2023-08-01 21:55:48
  */
 import { proxyRefs } from "../reactivity";
 import { shallowReadonly } from "../reactivity/reactive";
@@ -78,6 +78,11 @@ function handlerSetupResult(instance, setupResult: any) {
 }
 function finishComponentSetup(instance: any) {
 	const Component = instance.type;
+	if (compiler && Component.render) {
+		if (Component.template) {
+			Component.template = compiler(Component.template);
+		}
+	}
 	//如果组件上有render函数，则将其复制到组件实例上去
 	if (Component.render) {
 		instance.render = Component.render;
@@ -86,4 +91,9 @@ function finishComponentSetup(instance: any) {
 let currentInstance = null;
 export function getCurrentInstance() {
 	return currentInstance;
+}
+
+let compiler;
+export function registerRuntimeCompiler(_compiler) {
+	compiler = _compiler;
 }

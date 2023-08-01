@@ -4,7 +4,7 @@
  * @Author: 小国际
  * @Date: 2023-07-18 17:26:32
  * @LastEditors: 小国际
- * @LastEditTime: 2023-07-28 21:45:03
+ * @LastEditTime: 2023-08-01 22:08:46
  */
 import { effect } from "../reactivity/effect";
 import { createComponentInstance, setupComponent } from "./component";
@@ -536,7 +536,7 @@ export function createRenderer(options) {
 					console.log("init");
 					const proxy = instance.proxy;
 					//调用render()，拿到vNode树
-					const subTree = (instance.subTree = instance.render.call(proxy));
+					const subTree = (instance.subTree = instance.render.call(proxy,proxy);
 					console.log(`subtree:------->${subTree}`);
 					// 递归处理节点
 					patch(null, subTree, container, instance, anchor);
@@ -555,7 +555,7 @@ export function createRenderer(options) {
 						updateComponentPreRender(instance, next);
 					}
 					//调用render()，拿到vNode树
-					const subTree = instance.render.call(proxy);
+					const subTree = instance.render.call(proxy,proxy);
 					//更新组件实例上的subTree,保证每次组件实例上的都是上一次的subTree
 					instance.subTree = subTree;
 					console.log("old subTree:------->" + prevSubTree);
