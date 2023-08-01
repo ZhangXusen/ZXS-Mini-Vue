@@ -1,5 +1,5 @@
-import { ElementTypes, NodeTypes } from "../src/ast";
-import { baseParse } from "../src/parse";
+import { NodeTypes } from "../src/ast";
+import { baseParse } from "../src/parser";
 
 describe("parser", () => {
 	describe("text", () => {
@@ -66,7 +66,6 @@ describe("parser", () => {
 			expect(element).toStrictEqual({
 				type: NodeTypes.ELEMENT,
 				tag: "div",
-				tagType: ElementTypes.ELEMENT,
 				children: [
 					{
 						type: NodeTypes.TEXT,
@@ -83,7 +82,6 @@ describe("parser", () => {
 			expect(element).toStrictEqual({
 				type: NodeTypes.ELEMENT,
 				tag: "div",
-				tagType: ElementTypes.ELEMENT,
 				children: [
 					{
 						type: NodeTypes.INTERPOLATION,
@@ -103,7 +101,6 @@ describe("parser", () => {
 			expect(element).toStrictEqual({
 				type: NodeTypes.ELEMENT,
 				tag: "div",
-				tagType: ElementTypes.ELEMENT,
 				children: [
 					{
 						type: NodeTypes.TEXT,

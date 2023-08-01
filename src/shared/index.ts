@@ -25,3 +25,5 @@ export const camelize = (str: string) =>
 	str.replace(/-(\w)/g, (_, c) => {
 		return c ? c.toUpperCase() : "";
 	});
+
+export const isString = (str: string) => typeof str === "string";
